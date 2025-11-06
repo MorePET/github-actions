@@ -1,0 +1,36 @@
+---
+name: Renovate (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      config_file:
+        description: 'Path to renovate config file'
+        required: false
+        default: '.github/renovate.json'
+        type: string
+      log_level:
+        description: 'Renovate log level'
+        required: false
+        default: 'info'
+        type: string
+    secrets:
+      token:
+        description: 'GitHub token for Renovate (fine-grained PAT)'
+        required: true
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v40.3.12
+        with:
+          token: ${{ secrets.token }}
+        env:
+          LOG_LEVEL: ${{ inputs.log_level }}
+          RENOVATE_CONFIG_FILE: ${{ inputs.config_file }}
+

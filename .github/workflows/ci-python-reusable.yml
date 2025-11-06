@@ -1,0 +1,47 @@
+---
+name: CI Python (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: 'Python version to use'
+        required: false
+        default: '3.12'
+        type: string
+      run_tests:
+        description: 'Whether to run pytest'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ inputs.python_version }}
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run pre-commit hooks
+        run: uv run pre-commit run --all-files
+
+      - name: Run tests
+        if: inputs.run_tests
+        run: |
+          if [ -d "tests" ]; then
+            uv run pytest --cov --cov-report=term-missing
+          else
+            echo "No tests directory found, skipping tests"
+          fi
+
