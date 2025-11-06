@@ -208,6 +208,17 @@ jobs:
 }
 ```
 
+**How this configuration behaves:**
+
+| Scenario | Version Change | Auto-merge? | Why |
+|----------|---------------|-------------|-----|
+| **Security patch** | `ruff 0.14.3` → `0.14.4` | ✅ **Yes** (immediate) | Safe, backwards compatible |
+| **Normal patch** | `ruff 0.14.3` → `0.14.4` | ✅ **Yes** (3-day soak) | Safe, with community testing |
+| **Security minor** | `django 4.2.7` → `4.3.0` | ❌ **No** (urgent review) | Could break, needs human check |
+| **Security major** | `package 1.5.3` → `2.0.0` | ❌ **No** (urgent review) | Breaking changes, must review |
+| **Normal minor** | `pytest 8.4.1` → `8.5.0` | ❌ **No** (weekend review) | New features, should review |
+| **Normal major** | `ruff 0.14.3` → `1.0.0` | ❌ **No** (biweekly review) | Breaking changes, must test |
+
 ### 3. Push to Main
 
 ```bash
