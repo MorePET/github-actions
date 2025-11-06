@@ -44,6 +44,7 @@ jobs:
 ```
 
 **Required:**
+- Repository setting: **"Allow auto-merge"** enabled (Settings → General → Pull Requests)
 - Repository secret: `RENOVATE_TOKEN` (fine-grained PAT)
 - Config file: `.github/renovate.json`
 
@@ -85,7 +86,16 @@ jobs:
 
 ## Setup for New Repository
 
-### 1. Create Renovate Token (Once per repo)
+### 1. Enable Auto-merge in Repository Settings
+
+**Required for Renovate to automatically merge PRs after CI passes.**
+
+1. Go to repository **Settings** → **General**
+2. Scroll to **"Pull Requests"** section
+3. Check ✅ **"Allow auto-merge"**
+4. Save changes
+
+### 2. Create Renovate Token (Once per repo)
 
 1. Go to: [github.com/settings/tokens?type=beta](https://github.com/settings/tokens?type=beta)
 2. Click "Generate new token"
@@ -99,7 +109,7 @@ jobs:
      - Workflows: Read and write
 4. Copy token and add as repository secret: `RENOVATE_TOKEN`
 
-### 2. Add Workflows to Your Repo
+### 3. Add Workflows to Your Repo
 
 Create these files:
 
@@ -146,14 +156,24 @@ jobs:
   "extends": ["config:recommended"],
   "packageRules": [
     {
-      "description": "Security updates - immediate",
+      "description": "Security patches - immediate auto-merge",
+      "matchUpdateTypes": ["patch"],
       "matchManagers": ["pep621"],
       "vulnerabilityAlerts": {"enabled": true},
       "automerge": true,
       "automergeType": "pr",
       "minimumReleaseAge": null,
       "schedule": ["at any time"],
-      "labels": ["dependencies", "security", "automerge"]
+      "labels": ["dependencies", "security", "patch", "automerge"]
+    },
+    {
+      "description": "Security in minor/major - urgent manual review",
+      "matchUpdateTypes": ["minor", "major"],
+      "matchManagers": ["pep621"],
+      "vulnerabilityAlerts": {"enabled": true},
+      "automerge": false,
+      "schedule": ["at any time"],
+      "labels": ["dependencies", "security", "urgent"]
     },
     {
       "description": "Patch updates - 3 day soak time",
